@@ -7,7 +7,8 @@ const initialData = {
   fetching: false,
   array: [],
   current: {},
-  favorites: []
+  favorites: [],
+  nextPage: 1
 }
 
 const uri = "https://rickandmortyapi.com/graphql"
@@ -23,12 +24,20 @@ const GET_CHARACTERS = "GET_CHARACTERS",
 
   GET_FAVS = "GET_FAVS",
   GET_FAVS_ERROR = "GET_FAVS_ERROR",
-  GET_FAVS_SUCCESS = "GET_FAVS_SUCCESS"
+  GET_FAVS_SUCCESS = "GET_FAVS_SUCCESS",
+
+  UPDATE_PAGE = "UPDATE_PAGE"
 
 // reducer
 export default (state = initialData, action) => {
 
   switch (action.type) {
+
+    case UPDATE_PAGE:
+      return {
+        ...state,
+        nextPage: action.payload
+      }
 
     case GET_FAVS_SUCCESS:
       return {
@@ -150,6 +159,8 @@ export const removeCharacterAction = () => (dispatch, getState) => {
 
   array.shift()
 
+  if (!array.length) return getCharactersAction()(dispatch, getState)
+
   dispatch({
     type: REMOVE_CHARACTER,
     payload: [...array],
@@ -162,8 +173,13 @@ export const getCharactersAction = () => async (dispatch, getState) => {
   dispatch({ type: GET_CHARACTERS })
 
   const query = gql`
-    {
-      characters {
+    query ($page: Int) {
+      characters(page: $page) {
+        info {
+          pages
+          next
+          prev
+        }
         results {
           name
           image
@@ -172,13 +188,20 @@ export const getCharactersAction = () => async (dispatch, getState) => {
     }
   `
 
+  const { nextPage } = getState().characters
+
   try {
 
-    const { data } = await client.query({ query })
+    const { data } = await client.query({ query, variables: { page: nextPage } })
 
     dispatch({
       type: GET_CHARACTERS_SUCCESS,
       payload: data.characters.results
+    })
+
+    dispatch({
+      type: UPDATE_PAGE,
+      payload: data.characters.info.next || 1
     })
 
   } catch (err) {

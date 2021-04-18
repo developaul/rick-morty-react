@@ -1,5 +1,5 @@
 import { loginWithGoogle, signOutGoogle } from '../firebase';
-
+import { reteiveFavs, restoreFavoriteAction } from './charsDuck'
 // constants
 const initialData = {
   loggedIn: false,
@@ -68,6 +68,8 @@ export const restoreSessionAction = () => dispatch => {
       type: LOGIN_SUCCESS,
       payload: storage.user
     })
+
+    restoreFavoriteAction(storage.characters.favorites)(dispatch)
   }
 
 }
@@ -84,6 +86,8 @@ export const doGoogleLoginAction = () => async (dispatch, getState) => {
       type: LOGIN_SUCCESS,
       payload: { uid, displayName, email, photoURL }
     })
+
+    await reteiveFavs()(dispatch, getState)
 
     saveStorage(getState())
 

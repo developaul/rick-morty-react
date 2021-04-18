@@ -1,5 +1,6 @@
 import firebase from 'firebase/app'
 import 'firebase/auth'
+import 'firebase/firestore'
 
 const firebaseConfig = {
   apiKey: "AIzaSyAMVI7PeVDPdoRb96lUGSxhp71tC_lWSuc",
@@ -11,6 +12,17 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig)
+
+const db = firebase.firestore().collection('favs')
+
+export async function getFavs(uid) {
+  const snap = await db.doc(uid).get()
+  return snap.data().array
+}
+
+export function updateDB(array, uid) {
+  return db.doc(uid).set({ array })
+}
 
 export async function loginWithGoogle() {
   const provider = new firebase.auth.GoogleAuthProvider()

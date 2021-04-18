@@ -1,23 +1,31 @@
 import React from 'react'
 import { connect } from 'react-redux'
 
-import { removeCharacterAction } from '../../redux/charsDuck';
+import { removeCharacterAction, addToFavoritesAction } from '../../redux/charsDuck';
 
 import Card from '../card/Card'
 
 import styles from './home.module.css'
 
-function Home({ chars, removeCharacterAction }) {
+function Home({ chars, removeCharacterAction, addToFavoritesAction }) {
 
 	function renderCharacter() {
 		const [char] = chars;
 		return (
-			<Card leftClick={nextCharacter} {...char} />
+			<Card
+				leftClick={nextCharacter}
+				rightClick={addFav}
+				{...char}
+			/>
 		)
 	}
 
 	function nextCharacter() {
 		removeCharacterAction()
+	}
+
+	function addFav() {
+		addToFavoritesAction()
 	}
 
 	return (
@@ -42,4 +50,4 @@ function mapState(state) {
 // 2. DESPACHAR ACCIONES
 // como primer argumento recibe el mapStateToProps, como segundo argumento recibe un objeto con las diferentes acciones 
 // que require dispachar el component y se los pasa como props
-export default connect(mapState, { removeCharacterAction })(Home)
+export default connect(mapState, { removeCharacterAction, addToFavoritesAction })(Home)

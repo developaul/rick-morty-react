@@ -1,4 +1,4 @@
-import axios from 'axios';
+import ApolloClient, { gql } from 'apollo-boost';
 
 import { updateDB, getFavs } from '../firebase'
 
@@ -10,7 +10,9 @@ const initialData = {
   favorites: []
 }
 
-const URL = "https://rickandmortyapi.com/api/character"
+const uri = "https://rickandmortyapi.com/graphql"
+
+const client = new ApolloClient({ uri })
 
 const GET_CHARACTERS = "GET_CHARACTERS",
   GET_CHARACTERS_SUCCESS = "GET_CHARACTERS_SUCCESS",
@@ -159,13 +161,24 @@ export const getCharactersAction = () => async (dispatch, getState) => {
 
   dispatch({ type: GET_CHARACTERS })
 
+  const query = gql`
+    {
+      characters {
+        results {
+          name
+          image
+        }
+      }
+    }
+  `
+
   try {
 
-    const { data } = await axios.get(URL);
+    const { data } = await client.query({ query })
 
     dispatch({
       type: GET_CHARACTERS_SUCCESS,
-      payload: data.results
+      payload: data.characters.results
     })
 
   } catch (err) {

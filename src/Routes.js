@@ -1,5 +1,6 @@
 import React from 'react'
 import { Switch, Route, Redirect } from 'react-router-dom'
+
 import Home from './components/home/HomePage'
 import FavPage from './components/favs/FavPage'
 import LoginPage from './components/login/LoginPage'
@@ -10,7 +11,6 @@ function PrivateRoute({ path, component, ...rest }) {
     if (!(storage && storage.user)) return <Redirect to="/login"  {...rest} />
 
     return <Route path={path} component={component} {...rest} />
-
 }
 
 export default function Routes() {
